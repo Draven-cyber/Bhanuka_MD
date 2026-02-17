@@ -1,4 +1,3 @@
-
 const { cmd } = require("../command");
 const axios = require("axios");
 
@@ -7,69 +6,70 @@ cmd(
     pattern: "wall",
     alias: ["wallpaper"],
     react: "🖼️",
-    desc: "Download HD Wallpapers",
+    desc: "Download HD wallpapers",
     category: "download",
     filename: __filename,
   },
-  async (
-    conn,
-    mek,
-    m,
-    {
-      from,
-      q,
-      reply,
-    }
-  ) => {
+  async (bhanuka, mek, m, { from, q, reply }) => {
     try {
-      if (!q) return reply("*🖼️ Please enter a keyword to search HD wallpapers!*");
+      if (!q) {
+        return reply("*🖼️ Please enter a keyword to search HD wallpapers!*");
+      }
 
-      reply("*🔍 Searching for HD wallpapers... Please wait a moment.*");
+      await reply("*🔍 Searching for HD wallpapers... Please wait.*");
 
-      const res = await axios.get(`https://wallhaven.cc/api/v1/search?q=${encodeURIComponent(q)}&sorting=random&resolutions=1920x1080,2560x1440,3840x2160`);
-      const wallpapers = res.data.data;
+      const response = await axios.get(
+        "https://wallhaven.cc/api/v1/search",
+        {
+          params: {
+            q: q,
+            sorting: "random",
+            resolutions: "1920x1080,2560x1440,3840x2160"
+          },
+          timeout: 15000
+        }
+      );
 
-      if (!wallpapers || wallpapers.length === 0) {
+      if (
+        !response.data ||
+        !Array.isArray(response.data.data) ||
+        response.data.data.length === 0
+      ) {
         return reply("*❌ No HD wallpapers found for that keyword.*");
       }
 
-      const selected = wallpapers.slice(0, 5); // get top 5
+      const wallpapers = response.data.data.slice(0, 5);
 
-      const header = `WALLPAPER DOWNLOADER`;
-
-      await conn.sendMessage(
+      await bhanuka.sendMessage(
         from,
         {
           image: {
             url: "https://github.com/bhanukamd1233-cyber/Bhanuka_MD/blob/main/images/BHANUKA%20MD%20LOGO.png?raw=true",
           },
-          caption: header,
+          caption: "🖼️ *BHANUKA-MD WALLPAPER RESULTS*",
         },
         { quoted: mek }
       );
 
-      for (const wallpaper of selected) {
-        const caption = `
-📥 *Resolution:* ${wallpaper.resolution}
-🔗 *Link:* ${wallpaper.url}
-`;
+      for (const wp of wallpapers) {
+        const caption =
+`📥 *Resolution:* ${wp.resolution}
+🔗 *Source:* ${wp.url}`;
 
-        await conn.sendMessage(
+        await bhanuka.sendMessage(
           from,
           {
-            image: { url: wallpaper.path },
+            image: { url: wp.path },
             caption,
           },
           { quoted: mek }
         );
       }
 
-      return reply("*🌟 Enjoy your HD wallpapers! Thank you for using BHANUKA-MD.*");
-    } catch (e) {
-      console.error(e);
-      reply(`*❌ Error:* ${e.message || e}`);
+      await reply("*🌟 Enjoy your HD wallpapers!*\n— *BHANUKA-MD*");
+    } catch (error) {
+      console.error("WALL COMMAND ERROR:", error);
+      reply("*❌ Failed to fetch wallpapers. Please try again later.*");
     }
   }
 );
-
-
