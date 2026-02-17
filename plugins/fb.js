@@ -1,92 +1,83 @@
-const { cmd, commands } = require("../command");
+const { cmd } = require("../command");
 const getFbVideoInfo = require("@xaviabot/fb-downloader");
 
 cmd(
   {
     pattern: "fb",
     alias: ["facebook"],
-    react: "🔎",
-    desc: "Download Facebook Video",
+    react: "📥",
+    desc: "Download Facebook videos",
     category: "download",
     filename: __filename,
   },
-  async (
-    bhanuka,
-    mek,
-    m,
-    {
-      from,
-      quoted,
-      body,
-      isCmd,
-      command,
-      args,
-      q,
-      isGroup,
-      sender,
-      senderNumber,
-      botNumber2,
-      botNumber,
-      pushname,
-      isMe,
-      isOwner,
-      groupMetadata,
-      groupName,
-      participants,
-      groupAdmins,
-      isBotAdmins,
-      isAdmins,
-      reply,
-    }
-  ) => {
+  async (bhanuka, mek, m, { from, q, reply }) => {
     try {
-      if (!q) return reply("*Please provide a valid Facebook video URL!* ❤️");
-
-      const fbRegex = /(https?:\/\/)?(www\.)?(facebook|fb)\.com\/.+/;
-      if (!fbRegex.test(q))
-        return reply("*Invalid Facebook URL! Please check and try again.* ☹️");
-
-      reply("*Downloading your video...* ❤️");
-
-      const result = await getFbVideoInfo(q);
-      if (!result || (!result.sd && !result.hd)) {
-        return reply("*Failed to download video. Please try again later.* ☹️");
+      if (!q) {
+        return reply("*❌ Please provide a Facebook video link!*");
       }
 
-      const { title, sd, hd } = result;
-      const bestQualityUrl = hd || sd;
-      const qualityText = hd ? "HD" : "SD";
+      // Improved Facebook URL validation
+      const fbRegex =
+        /^(https?:\/\/)?(www\.)?(facebook\.com|fb\.watch)\/.+/i;
 
-      const desc = `
-Your fb video
-👻 *Title*: ${title || "Unknown"}
-👻 *Quality*: ${qualityText}
+      if (!fbRegex.test(q)) {
+        return reply("*❌ Invalid Facebook URL. Please try again!*");
+      }
+
+      await reply("*⬇️ Downloading Facebook video... Please wait*");
+
+      const result = await getFbVideoInfo(q);
+
+      if (!result) {
+        return reply("*❌ Failed to fetch video information!*");
+      }
+
+      const title = result.title || "Facebook Video";
+      const hd = result.hd;
+      const sd = result.sd;
+
+      if (!hd && !sd) {
+        return reply("*❌ No downloadable video found!*");
+      }
+
+      const videoUrl = hd || sd;
+      const quality = hd ? "HD" : "SD";
+
+      const caption = `
+📘 *Facebook Video Downloader*
+
+🎬 *Title:* ${title}
+🎞️ *Quality:* ${quality}
+
+— BHANUKA-MD
 `;
 
+      // Thumbnail / info message
       await bhanuka.sendMessage(
         from,
         {
           image: {
             url: "https://github.com/bhanukamd1233-cyber/Bhanuka_MD/blob/main/images/FB.png?raw=true",
           },
-          caption: desc,
+          caption,
         },
         { quoted: mek }
       );
 
+      // Send video
       await bhanuka.sendMessage(
         from,
         {
-          video: { url: bestQualityUrl },
-          caption: `*📥 Downloaded in ${qualityText} quality*`,
+          video: { url: videoUrl },
+          caption: `📥 *Downloaded in ${quality} quality*`,
         },
         { quoted: mek }
       );
 
-      return reply("Thank you for using Bhanuka-MD");
-    } catch (e) {
-      console.error(e);
-      reply(`*Error:* ${e.message || e}`);
+      return reply("✅ *Download complete!* Thank you for using *BHANUKA-MD*");
+    } catch (err) {
+      console.error("FB Downloader Error:", err);
+      reply(`❌ *Error:* ${err.message || "Something went wrong"}`);
     }
   }
 );
