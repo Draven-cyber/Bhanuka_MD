@@ -64,7 +64,7 @@ cmd(
         );
       }
 
-      return reply("*🌟 Enjoy your HD wallpapers! Thank you for using DANUWA-MD.*");
+      return reply("*🌟 Enjoy your HD wallpapers! Thank you for using BHANUKA-MD.*");
     } catch (e) {
       console.error(e);
       reply(`*❌ Error:* ${e.message || e}`);
