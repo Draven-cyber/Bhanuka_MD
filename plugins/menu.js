@@ -1,5 +1,8 @@
 const { cmd, commands } = require("../command");
 
+// ⚠️ Keep this prefix the same as in your main bot file
+const PREFIX = "#";
+
 cmd(
   {
     pattern: "menu",
@@ -7,42 +10,43 @@ cmd(
     category: "main",
     filename: __filename,
   },
-  async (
-    bhanuka,
-    mek,
-    m,
-    {
-      from,
-      reply
-    }
-  ) => {
+  async (bhanuka, mek, m, { reply }) => {
     try {
       const categories = {};
 
-      for (let cmdName in commands) {
-        const cmdData = commands[cmdName];
-        const cat = cmdData.category?.toLowerCase() || "other";
-        if (!categories[cat]) categories[cat] = [];
-        categories[cat].push({
+      // Correctly iterate over commands array
+      for (const cmdData of commands) {
+        // Skip hidden or invalid commands
+        if (!cmdData || cmdData.dontAddCommandList) continue;
+        if (!cmdData.pattern) continue;
+
+        const category = (cmdData.category || "other").toLowerCase();
+
+        if (!categories[category]) {
+          categories[category] = [];
+        }
+
+        categories[category].push({
           pattern: cmdData.pattern,
-          desc: cmdData.desc || "No description"
+          desc: cmdData.desc || "No description",
         });
       }
 
-      let menuText = "📋 *Available Commands:*\n";
+      let menuText = "📋 *BHANUKA-MD COMMAND MENU*\n";
 
-      for (const [cat, cmds] of Object.entries(categories)) {
-        menuText += `\n📂 *${cat.toUpperCase()}*\n`;
-        cmds.forEach(c => {
-          menuText += `- .${c.pattern} : ${c.desc}\n`;
-        });
+      // Build menu text
+      for (const [category, cmds] of Object.entries(categories)) {
+        menuText += `\n📂 *${category.toUpperCase()}*\n`;
+
+        for (const c of cmds) {
+          menuText += `• ${PREFIX}${c.pattern} — ${c.desc}\n`;
+        }
       }
 
       await reply(menuText.trim());
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("MENU COMMAND ERROR:", error);
       reply("❌ Error generating menu.");
     }
   }
 );
-
