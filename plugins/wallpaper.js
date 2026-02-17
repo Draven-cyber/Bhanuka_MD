@@ -41,7 +41,7 @@ cmd(
         from,
         {
           image: {
-            url: "https://github.com/DANUWA-MD/DANUWA-MD/blob/main/images/DANUWA-MD.png?raw=true",
+            url: "https://github.com/bhanukamd1233-cyber/Bhanuka_MD/blob/main/images/BHANUKA%20MD%20LOGO.png?raw=true",
           },
           caption: header,
         },
