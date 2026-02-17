@@ -4,45 +4,41 @@ const yts = require("yt-search");
 cmd(
   {
     pattern: "yts",
-    alias: ["yts", "youtubesearch"],
+    alias: ["ytsearch", "youtubesearch"],
     react: "🔎",
     desc: "Search YouTube videos",
     category: "search",
     filename: __filename,
   },
-  async (
-    bhanuka,
-    mek,
-    m,
-    {
-      from,
-      quoted,
-      q,
-      reply,
-    }
-  ) => {
+  async (bhanuka, mek, m, { from, q, reply }) => {
     try {
-      if (!q) return reply("*Please provide a search query!* 🔍");
+      if (!q) {
+        return reply("*Please provide a search query!* 🔍");
+      }
 
-      reply("*Searching YouTube for you...* ⌛");
+      await reply("*Searching YouTube for you...* ⌛");
 
       const search = await yts(q);
 
-      if (!search || !search.all || search.all.length === 0) {
+      if (!search || !search.videos || search.videos.length === 0) {
         return reply("*No results found on YouTube.* ☹️");
       }
 
-      const results = search.videos.slice(0, 10); 
-      let formattedResults = results.map((v, i) => (
-        `🎬 *${i + 1}. ${v.title}*\n📅 ${v.ago} | ⌛ ${v.timestamp} | 👁️ ${v.views.toLocaleString()} views\n🔗 ${v.url}`
-      )).join("\n\n");
+      const results = search.videos.slice(0, 10);
 
-      const caption = `  
-Your youtube search results
-─────────────────────────
-🔎 *Query*: ${q}
-${formattedResults}
-   `;
+      const formattedResults = results
+        .map(
+          (v, i) =>
+            `🎬 *${i + 1}. ${v.title}*\n📅 ${v.ago} | ⌛ ${v.timestamp} | 👁️ ${v.views.toLocaleString()} views\n🔗 ${v.url}`
+        )
+        .join("\n\n");
+
+      const caption =
+`📺 *YouTube Search Results*
+────────────────────────
+🔎 *Query:* ${q}
+
+${formattedResults}`;
 
       await bhanuka.sendMessage(
         from,
@@ -54,8 +50,8 @@ ${formattedResults}
         },
         { quoted: mek }
       );
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("YTS COMMAND ERROR:", error);
       reply("*An error occurred while searching YouTube.* ❌");
     }
   }
