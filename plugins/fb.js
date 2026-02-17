@@ -67,7 +67,7 @@ Your fb video
         from,
         {
           image: {
-            url: "https://github.com/bhanuka-MD/bhanuka-MD/blob/main/images/fbdownloader.png?raw=true",
+            url: "https://github.com/bhanukamd1233-cyber/Bhanuka_MD/blob/main/images/FB.png?raw=true",
           },
           caption: desc,
         },
