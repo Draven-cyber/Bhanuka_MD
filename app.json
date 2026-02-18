@@ -12,7 +12,7 @@
 
   "env": {
     "SESSION_ID": {
-      "description": "Put the session-id here.",
+      "description": "30pj2ZyS#BfM1f9lsGAjeSCTmdb-LQlafsMupqli34KKS7bZ1o2s",
       "required": true
     },
     "ALIVE_IMG": {
